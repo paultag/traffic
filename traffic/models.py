@@ -15,6 +15,9 @@ class Violation(models.Model):
 
 TICKET_TYPES = (
     ("photo", "Photo"),
+    ("moving", "Moving"),
+    ("mover void", "Mover Void"),
+    ("no ticket type", "No Ticket Type"),
 )
 
 
