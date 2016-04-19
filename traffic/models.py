@@ -1,5 +1,16 @@
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import GEOSGeometry
+import datetime as dt
+
+
+class Agency(models.Model):
+    id = models.IntegerField(primary_key=True)
+    name = models.TextField()
+
+
+class Violation(models.Model):
+    id = models.CharField(max_length=24, primary_key=True)
+    description = models.TextField()
 
 
 class Moving(models.Model):
@@ -7,13 +18,43 @@ class Moving(models.Model):
     location = models.PointField()
 
     fine_amount = models.IntegerField()
+    paid_amount = models.IntegerField()
+
     location_name = models.TextField()
+    when = models.DateField()
+
+    agency = models.ForeignKey(Agency)
+    violation = models.ForeignKey(Violation)
 
     @classmethod
     def create_from_csv(self, obj):
-        # {'OBJECTID': '1090162', 'Y': '38.905030892799999', 'LOCATION': 'M ST W/B @ WHITEHURST FWY NW', 'ADDRESS_ID': '806823', 'FINEAMT': '150', 'ROW_': '2755995', 'PENALTY1': '', '\ufeffX': '-77.070231129299998', 'YCOORD': '137465.2499', 'VIOLATIONCODE': 'T113', 'TICKETISSUEDATE': '2012-11-01T00:00:00.000Z', 'TOTALPAID': '150', 'VIOLATIONDESC': 'FAIL TO STOP PER REGULATIONS FACING RED SIGNAL', 'XCOORD': '393908.51', 'TICKETTYPE': 'Photo', 'ACCIDENTINDICATOR': 'No', 'ROW_ID': '', 'PENALTY2': '', 'STREETSEGID': '5856', 'AGENCYID': '25'}
+        # {'ADDRESS_ID': '806823',
+        #  'PENALTY1': '', 
+        #  'VIOLATIONCODE': 'T113',
+        #  'VIOLATIONDESC': 'FAIL TO STOP PER REGULATIONS FACING RED SIGNAL',
+        #  'TICKETTYPE': 'Photo',
+        #  'ACCIDENTINDICATOR': 'No',
+        #  'PENALTY2': '',
+        #  'AGENCYID': '25'
         id = int(obj.get('ROW_', obj.get('ROWID_')))
         # Check to see if this is really unique
+
+        agency_id = int(obj['AGENCYID'])
+        try:
+            agency = Agency.objects.get(id=agency_id)
+        except Agency.DoesNotExist:
+            agency = Agency.objects.create(id=agency_id)
+
+        violation_id = obj['VIOLATIONCODE']
+        try:
+            violation = Violation.objects.get(id=violation_id)
+        except Violation.DoesNotExist:
+            violation = Violation.objects.create(id=violation_id)
+
+        when = dt.datetime.strptime(
+            obj['TICKETISSUEDATE'],
+            "%Y-%m-%dT00:00:00.000Z",
+        )
 
         try:
             moving = Moving.objects.get(id=id)
@@ -34,5 +75,9 @@ class Moving(models.Model):
             id=id,
             location=coords,
             fine_amount=int(obj['FINEAMT']) if obj['FINEAMT'] else 0,
+            paid_amount=int(obj['TOTALPAID']),
             location_name=obj['LOCATION'],
+            when=when,
+            agency=agency,
+            violation=violation,
         )
