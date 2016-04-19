@@ -29,7 +29,7 @@ class Moving(models.Model):
     location = models.PointField()
 
     fine_amount = models.IntegerField()
-    paid_amount = models.IntegerField()
+    paid_amount = models.FloatField()
 
     location_name = models.TextField()
     when = models.DateField()
@@ -86,7 +86,7 @@ class Moving(models.Model):
             id=id,
             location=coords,
             fine_amount=int(obj['FINEAMT']) if obj['FINEAMT'] else 0,
-            paid_amount=int(obj['TOTALPAID']),
+            paid_amount=float(obj['TOTALPAID']),
             location_name=obj['LOCATION'],
             when=when,
             agency=agency,

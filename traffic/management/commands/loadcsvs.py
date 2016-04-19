@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(type=str, dest='path', help='csv root')
 
-    def handle(self, *args, path, **options):
+    def csvs(self, path):
         for dirpath, dirnames, filenames in os.walk(top=path):
             for name in filenames:
                 if not name.startswith("Moving_Violations_in_"):
@@ -18,7 +18,11 @@ class Command(BaseCommand):
                 print(name)
                 with open(os.path.join(dirpath, name), 'r') as fd:
                     entries = csv.DictReader(fd)
-                    self.scrape_moving_violations(entries)
+                    yield entries
+
+    def handle(self, *args, path, **options):
+        for entries in self.csvs(path):
+            self.scrape_moving_violations(entries)
 
     def scrape_moving_violations(self, rows):
         for row in rows:
