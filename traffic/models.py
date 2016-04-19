@@ -28,7 +28,7 @@ class Moving(models.Model):
     id = models.IntegerField(primary_key=True)
     location = models.PointField()
 
-    fine_amount = models.IntegerField()
+    fine_amount = models.FloatField()
     paid_amount = models.FloatField()
 
     location_name = models.TextField()
@@ -85,7 +85,7 @@ class Moving(models.Model):
         return Moving.objects.create(
             id=id,
             location=coords,
-            fine_amount=int(obj['FINEAMT']) if obj['FINEAMT'] else 0,
+            fine_amount=float(obj['FINEAMT']) if obj['FINEAMT'] else 0,
             paid_amount=float(obj['TOTALPAID']),
             location_name=obj['LOCATION'],
             when=when,
