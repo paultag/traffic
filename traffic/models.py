@@ -49,7 +49,10 @@ class Moving(models.Model):
         try:
             violation = Violation.objects.get(id=violation_id)
         except Violation.DoesNotExist:
-            violation = Violation.objects.create(id=violation_id)
+            violation = Violation.objects.create(
+                id=violation_id,
+                description=obj['VIOLATIONDESC'],
+            )
 
         when = dt.datetime.strptime(
             obj['TICKETISSUEDATE'],
