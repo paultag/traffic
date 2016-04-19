@@ -12,6 +12,9 @@ class Violation(models.Model):
     id = models.CharField(max_length=24, primary_key=True)
     description = models.TextField()
 
+    def __str__(self):
+        return "{} ({})".format(self.id, self.description)
+
 
 TICKET_TYPES = (
     ("photo", "Photo"),
@@ -35,12 +38,12 @@ class Moving(models.Model):
     violation = models.ForeignKey(Violation)
 
     type = models.CharField(max_length=16, choices=TICKET_TYPES)
+    accident = models.BooleanField()
 
     @classmethod
     def create_from_csv(self, obj):
         # {'ADDRESS_ID': '806823',
         #  'PENALTY1': '', 
-        #  'TICKETTYPE': 'Photo',
         #  'ACCIDENTINDICATOR': 'No',
         #  'PENALTY2': '',
         id = int(obj.get('ROW_', obj.get('ROWID_')))
@@ -91,4 +94,8 @@ class Moving(models.Model):
             agency=agency,
             violation=violation,
             type=obj['TICKETTYPE'].lower(),
+            accident={
+                "No": False,
+                "Yes": True,
+            }[obj['ACCIDENTINDICATOR']]
         )
