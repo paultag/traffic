@@ -42,9 +42,7 @@ class Moving(models.Model):
 
     @classmethod
     def create_from_csv(self, obj):
-        # {'ADDRESS_ID': '806823',
         #  'PENALTY1': '', 
-        #  'ACCIDENTINDICATOR': 'No',
         #  'PENALTY2': '',
         id = int(obj.get('ROW_', obj.get('ROWID_')))
         # Check to see if this is really unique

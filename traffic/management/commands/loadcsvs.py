@@ -15,6 +15,7 @@ class Command(BaseCommand):
             for name in filenames:
                 if not name.startswith("Moving_Violations_in_"):
                     continue
+                print(name)
                 with open(os.path.join(dirpath, name), 'r') as fd:
                     entries = csv.DictReader(fd)
                     self.scrape_moving_violations(entries)
