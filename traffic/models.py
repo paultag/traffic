@@ -13,6 +13,11 @@ class Violation(models.Model):
     description = models.TextField()
 
 
+TICKET_TYPES = (
+    ("photo", "Photo"),
+)
+
+
 class Moving(models.Model):
     id = models.IntegerField(primary_key=True)
     location = models.PointField()
@@ -26,16 +31,15 @@ class Moving(models.Model):
     agency = models.ForeignKey(Agency)
     violation = models.ForeignKey(Violation)
 
+    type = models.CharField(max_length=16, choices=TICKET_TYPES)
+
     @classmethod
     def create_from_csv(self, obj):
         # {'ADDRESS_ID': '806823',
         #  'PENALTY1': '', 
-        #  'VIOLATIONCODE': 'T113',
-        #  'VIOLATIONDESC': 'FAIL TO STOP PER REGULATIONS FACING RED SIGNAL',
         #  'TICKETTYPE': 'Photo',
         #  'ACCIDENTINDICATOR': 'No',
         #  'PENALTY2': '',
-        #  'AGENCYID': '25'
         id = int(obj.get('ROW_', obj.get('ROWID_')))
         # Check to see if this is really unique
 
@@ -83,4 +87,5 @@ class Moving(models.Model):
             when=when,
             agency=agency,
             violation=violation,
+            type=obj['TICKETTYPE'].lower(),
         )
